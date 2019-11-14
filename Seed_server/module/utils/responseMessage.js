@@ -23,11 +23,4 @@ module.exports = {
     DELETE_SUCCESS: "삭제 성공",
     DELETE_FAIL: "삭제 실패",
 
-    LIKE_SUCCESS: "좋아요 성공",
-    LIKE_FAIL: "좋아요 실패",
-    LIKE_CANCEL: "좋아요 취소",
-
-    FOLLOW_SUCCESS: "팔로우 성공",
-    FOLLOW_FAIL: "팔로우 실패",
-    FOLLOW_CANCEL: "팔로우 취소",
 };
