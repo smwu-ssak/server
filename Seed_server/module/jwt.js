@@ -13,16 +13,15 @@ const refreshOptions = {
 };
 
 module.exports = {
-    sign: (user) => {
+    sign: (User) => {
         const payload = {
-            userIdx: user.userIdx,
-            name: user.name,
-            id:user.id
+            userIdx: User.idUser,
+            name: User.userWho
         };
 
         const result = {
             token: jwt.sign(payload, secretOrPrivateKey),
-            refreshToken: randtoken.uid(256) //refreshToken 안쓰고 싶으면 지우면 됨 유효기간 주로 2주
+            //refreshToken: randtoken.uid(256) //refreshToken 안쓰고 싶으면 지우면 됨 유효기간 주로 2주
         };
         //refreshToken을 만들 때에도 다른 키를 쓰는게 좋다.
 
