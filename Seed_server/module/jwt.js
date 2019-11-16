@@ -15,8 +15,8 @@ const refreshOptions = {
 module.exports = {
     sign: (User) => {
         const payload = {
-            userIdx: User.idUser,
-            name: User.userWho
+            idx: User.idUser,
+            name: User.userName
         };
 
         const result = {
@@ -45,10 +45,10 @@ module.exports = {
         }
         return decoded;
     },
-    refresh: (user) => {
+    refresh: (User) => {
         const payload = {
-            idx: user.userIdx,
-            name: user.name
+            idx: User.idUser,
+            name: User.userName
         };
 
         return jwt.sign(payload, secretOrPrivateKey, options);

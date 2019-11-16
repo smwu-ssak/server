@@ -1,6 +1,7 @@
 module.exports = {
     NULL_VALUE: "필요한 값이 없습니다",
     OUT_OF_VALUE: "파라미터 값이 잘못되었습니다",
+    INVALID_TOKEN:"불가능한 토큰입니다.",
 
     AVAILABLE_NICKNAME: "사용 가능한 아이디 입니다.",
     DUPLICATION_NICKNAME: "중복된 아이디 입니다",
