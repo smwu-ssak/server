@@ -42,6 +42,9 @@ router.post('/', async (req, res) => {
         var nickname = kakaoResult.properties.nickname;
         var img_url = kakaoResult.properties.thumbnail_image;
 
+        if(img_url==null){
+            img_url='https://ssak-bucket.s3.ap-northeast-2.amazonaws.com/1573961943451.png';
+        }
         if (id != undefined) {
             let selectIdQuery = 'SELECT userId FROM User WHERE userId = ?';
             const selectResult = await pool.queryParam_Parse(selectIdQuery, [id]);
