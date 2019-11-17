@@ -5,6 +5,8 @@ router.use('/user', require('./user'));
 router.use('/main', require('./main'));
 router.use('/image', require('./image'));
 router.use('/store', require('./store'));
+router.use('/mypage', require('./mypage'));
+
 
 
 module.exports = router;
