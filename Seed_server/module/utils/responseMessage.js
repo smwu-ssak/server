@@ -12,13 +12,12 @@ module.exports = {
 
     LOGIN_SUCCESS:"로그인 성공",
     MISS_MATCH_PW: "비밀번호 틀림",
-    
+
     NO_DATA: "조회할 정보 없음",
     READ_SUCCESS: "조회 성공",
-
+    READ_FAIL: "조회 실패",
     SAVE_SUCCESS: "등록 성공",
     SAVE_FAIL: "등록 실패",
-    READ_FAIL: "조회 실패",
     UPDATE_SUCCESS: "수정 성공",
     UPDATE_FAIL: "수정 실패",
     DELETE_SUCCESS: "삭제 성공",
