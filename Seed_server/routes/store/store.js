@@ -16,6 +16,7 @@ router.post('/', async (req, res) => {
     const address = req.body.address;
     const lat = req.body.lat; //위도
     const log = req.body.log; //경도
+    const tel = req.body.tel;
 
     console.log("body:::"+JSON.stringify(req.body));
 
@@ -24,10 +25,10 @@ router.post('/', async (req, res) => {
     }
 
     let insertStoreQuery =
-        `INSERT INTO Store (name, address, user_id, lat, log) VALUES (?, ?, ?, ?, ?);`;
+        `INSERT INTO Store (name, address, user_id, lat, log, tel) VALUES (?, ?, ?, ?, ?, ?);`;
 
     try {
-        const insertSignupResult = await pool.queryParam_Parse(insertStoreQuery, [name, address, user.idx, lat, log]);
+        const insertSignupResult = await pool.queryParam_Parse(insertStoreQuery, [name, address, user.idx, lat, log, tel]);
 
         if (!insertSignupResult) {
             res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.SAVE_FAIL));

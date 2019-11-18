@@ -1,12 +1,12 @@
 var express = require('express');
 var router = express.Router();
 
-router.use('/user', require('./user'));
-router.use('/main', require('./main'));
-router.use('/image', require('./image'));
-router.use('/store', require('./store'));
-router.use('/mypage', require('./mypage'));
-router.use('/product', require('./product'));
+router.use('/user', require('./user/index'));
+router.use('/main', require('./main/index'));
+router.use('/image', require('./image/index'));
+router.use('/store', require('./store/index'));
+router.use('/mypage', require('./mypage/index'));
+router.use('/product', require('./product/index'));
 
 
 

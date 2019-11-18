@@ -11,7 +11,7 @@ const jwt = require('../../module/jwt');
 router.get('/', async (req, res) => {
 
   const user = jwt.verify(req.headers.token);
-  console.log("idx::"+user.idx);
+  console.log("idx::" + user.idx);
   try {
     if (user == null)
       res.status(200).send(util.successFalse(404, resMessage.READ_FAIL));

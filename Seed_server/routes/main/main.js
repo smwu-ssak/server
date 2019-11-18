@@ -10,25 +10,48 @@ const pool = require('../../module/pool');
 const jwt = require('../../module/jwt');
 
 router.get('/', async (req, res) => {
-    const user = jwt.verify(req.headers.token);
+    const selectMain =
+        `
+        SELECT p.name proName, p.quantity, p.image, p.originPrice, p.salePrice, p.idProduct, 
+        s.name storName  
+        FROM Product AS p 
+        JOIN Store AS s 
+        ON p.store_id = s.idStore 
+        JOIN User AS u 
+        ON s.user_id = u.idUser; 
+        `;
 
-    if (user === null || !req.headers.token) {
-        res.status(200).send(utils.successFalse(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+    const mainResult = await pool.queryParam_Parse(selectMain);
+
+    if (!mainResult) {
+        res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
     } else {
-        console.log("user::: "+JSON.stringify(user));
+        res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, mainResult));
+    }
+});
 
-        // const selectUserPost =
-        //     'SELECT * FROM User WHERE idUser = ? ';
+router.get('/detail/:idProduct', async (req, res) => {
+    const idProduct = req.params.idProduct;
+    console.log("idProduct:: "+idProduct);
 
-        // var postResult = await pool.queryParam_Parse(selectUserPost, [1]);
+    const selectDetail =
+        `
+        SELECT p.name proName, p.quantity, p.comment, p.image, p.originPrice, p.salePrice, p.expDate, u.userProfile,
+        s.name stoName, s.address, s.lat, s.log, u.userProfile 
+        FROM Product AS p 
+        JOIN Store AS s 
+        ON p.store_id = s.idStore 
+        JOIN User AS u 
+        ON s.user_id = u.idUser
+        WHERE p.idProduct = ?; 
+        `;
 
-        // if (!postResult) {
-        //     res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
-        // } else {
-        //     res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, postResult));
-        // }
+    const detailResult = await pool.queryParam_Parse(selectDetail, [idProduct]);
 
-
+    if (!detailResult) {
+        res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
+    } else {
+        res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, detailResult[0]));
     }
 });
 

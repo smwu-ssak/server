@@ -20,14 +20,15 @@ router.post('/', upload.single('image'), async (req, res) => {
     const originPrice = req.body.originPrice; //원래 가격
     const salePrice = req.body.salePrice; //판매 가격
     const expDate = req.body.expDate;
+    const comment = req.body.comment;
     const image = req.file.location;
 
     let idStoreQuery = 'SELECT idStore FROM Store WHERE user_id = ?';
     let productQuery =
     `
     INSERT INTO 
-    Product (name, quantity, originPrice, salePrice, expDate, image, store_id) 
-    VALUES (?, ?, ?, ?, ?, ?, ?) ;
+    Product (name, quantity, originPrice, salePrice, expDate, image, store_id, comment) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?) ;
     `;
 
     try {
@@ -35,7 +36,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             const idStoreResult = await connection.query(idStoreQuery, [user.idx]);
             console.log("idStore::"+idStoreResult[0].idStore);
             const store_id = idStoreResult[0].idStore;
-            await connection.query(productQuery, [name, quantity, originPrice, salePrice, expDate, image, store_id]);
+            await connection.query(productQuery, [name, quantity, originPrice, salePrice, expDate, image, store_id, comment]);
         });
 
         if (!transaction) {
