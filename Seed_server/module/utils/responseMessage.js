@@ -23,4 +23,6 @@ module.exports = {
     DELETE_SUCCESS: "삭제 성공",
     DELETE_FAIL: "삭제 실패",
 
+    ALREADY_BASKET: "이미 장바구니에 담겨 있습니다.",
+
 };
