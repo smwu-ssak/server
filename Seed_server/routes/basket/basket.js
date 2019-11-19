@@ -86,14 +86,6 @@ router.post('/', async (req, res) => {
   const user = jwt.verify(req.headers.token);
   console.log("body:::" + JSON.stringify(req.body));
 
-  // const name = req.body.name;
-  // const quantity = req.body.quantity;
-  // const originPrice = req.body.originPrice; //원래 가격
-  // const salePrice = req.body.salePrice; //판매 가격
-  // const expDate = req.body.expDate;
-  // const comment = req.body.comment;
-  // const image = req.file.location;
-
   let basketQuery =
     `
     UPDATE Basket 
@@ -120,10 +112,10 @@ router.post('/', async (req, res) => {
     }
 
     if (!selectResult) {
-      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.SAVE_FAIL));
+      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.UPDATE_FAIL));
     }
     else {
-      res.status(200).send(util.successTrue(statusCode.OK, resMessage.SAVE_SUCCESS));
+      res.status(200).send(util.successTrue(statusCode.OK, resMessage.UPDATE_SUCCESS));
     }
 } catch (err) {
   console.log("Update Basket Error => " + err);
