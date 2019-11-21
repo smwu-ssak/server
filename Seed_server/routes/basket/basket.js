@@ -81,45 +81,4 @@ router.get('/:idProduct', async (req, res) => {
   }
 });
 
-//장바구니 비우기
-router.post('/', async (req, res) => {
-  const user = jwt.verify(req.headers.token);
-  console.log("body:::" + JSON.stringify(req.body));
-
-  let basketQuery =
-    `
-    UPDATE Basket 
-    SET timePickup = ?, packing = ?, quantity = ?, basketTF = 0, buyTF = 1  
-    WHERE idBasket = ?;
-    `;
-
-  try {
-    if (user.idx == undefined) {
-      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
-    }
-
-    for (var key in req.body) {
-      if (req.body.hasOwnProperty(key)) {
-        //do something with e.g. req.body[key]
-        console.log("body???:::" + JSON.stringify(req.body[key].quantity));
-        const timePickup = req.body[key].timePickup;
-        const packing = req.body[key].packing;
-        const quantity = req.body[key].quantity;
-        const idBasket = req.body[key].idBasket;
-
-        var selectResult = await pool.queryParam_Parse(basketQuery, [timePickup, packing, quantity, idBasket]);
-      }
-    }
-
-    if (!selectResult) {
-      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.UPDATE_FAIL));
-    }
-    else {
-      res.status(200).send(util.successTrue(statusCode.OK, resMessage.UPDATE_SUCCESS));
-    }
-} catch (err) {
-  console.log("Update Basket Error => " + err);
-}
-});
-
 module.exports = router;

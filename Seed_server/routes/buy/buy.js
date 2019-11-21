@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
 
     const selectResult = await pool.queryParam_Parse(buyQuery, [user.idx]);
     if (!selectResult) {
-      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.READ_FAIL));
+      res.status(200).send(util.successFalse(statusCode.DB, resMessage.READ_FAIL));
     }
     else {
       console.log("buy::" + selectResult);
@@ -58,11 +58,17 @@ router.get('/', async (req, res) => {
 
 });
 
-//구출하기
+//구출확정
 router.post('/', async (req, res) => {
   const user = jwt.verify(req.headers.token);
   console.log("body:::" + JSON.stringify(req.body));
 
+  let selectBuy =
+    `
+  SELECT idBasket, product_id, quantity 
+  FROM Basket
+  WHERE user_id = ? AND buyTF = 1;
+  `;
   let buyQuery =
     `
     UPDATE Basket 
@@ -70,17 +76,51 @@ router.post('/', async (req, res) => {
     WHERE idBasket = ?;
     `;
 
+  let updateProduct = 
+  `
+  UPDATE Product 
+  SET quantity = ?   
+  WHERE idProduct = ?;
+  `;
+  let selectProduct = 
+  `
+  SELECT quantity
+  FROM Product 
+  WHERE idProduct = ?;
+  `;
+  
   try {
     if (user.idx == undefined) {
       res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
     }
-    for (var key in req.body) {
-      if (req.body.hasOwnProperty(key)) {
-        const idBasket = req.body[key].idBasket;
+
+    //구매 확정에 따른 원래 상품 갯수 감소 처리
+    var userIdResult = await pool.queryParam_Parse(selectBuy, [user.idx]);
+
+    if(userIdResult[0]==null)
+      res.status(200).send(util.successFalse(statusCode.NOT_FOUND, resMessage.NO_DATA));
+
+    const transaction = await pool.Transaction(async (connection) => {
+      for (var key in userIdResult) {
+        const idBasket = userIdResult[key].idBasket;
+        const product_id = userIdResult[key].product_id;
+        const quantity = userIdResult[key].quantity;
+        
+        console.log("userId::" + JSON.stringify(userIdResult[key].idBasket));
         var updateResult = await pool.queryParam_Parse(buyQuery, [idBasket]);
+        if(updateResult==undefined)
+          res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));
+        var quantityResult = await pool.queryParam_Parse(selectProduct, [product_id]);
+        var newQuantity = quantityResult[0].quantity - quantity;
+        if(newQuantity>0){
+          await pool.queryParam_Parse(updateProduct, [newQuantity, product_id]);
+        }else{
+          res.status(200).send(util.successFalse(statusCode.SERVICE_UNAVAILABLE, resMessage.ALREADY_BOUGHT));
+        }
       }
-    }
-    if (!updateResult) {
+    });
+
+    if (!transaction) {
       res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.UPDATE_FAIL));
     }
     else {
@@ -89,6 +129,47 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.log("Update Buy Error => " + err);
     res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.UPDATE_FAIL, err));
+  }
+});
+
+//구출하러 가기
+router.post('/now', async (req, res) => {
+  const user = jwt.verify(req.headers.token);
+  console.log("body:::" + JSON.stringify(req.body));
+
+  let basketQuery =
+    `
+    UPDATE Basket 
+    SET timePickup = ?, packing = ?, quantity = ?, buyTF = 1  
+    WHERE idBasket = ?;
+    `;
+
+  try {
+    if (user.idx == undefined) {
+      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
+    }
+
+    for (var key in req.body) {
+      if (req.body.hasOwnProperty(key)) {
+        //do something with e.g. req.body[key]
+        console.log("body???:::" + JSON.stringify(req.body[key].quantity));
+        const timePickup = req.body[key].timePickup;
+        const packing = req.body[key].packing;
+        const quantity = req.body[key].quantity;
+        const idBasket = req.body[key].idBasket;
+
+        var selectResult = await pool.queryParam_Parse(basketQuery, [timePickup, packing, quantity, idBasket]);
+      }
+    }
+
+    if (!selectResult) {
+      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.UPDATE_FAIL));
+    }
+    else {
+      res.status(200).send(util.successTrue(statusCode.OK, resMessage.UPDATE_SUCCESS));
+    }
+  } catch (err) {
+    console.log("Update Basket Error => " + err);
   }
 });
 

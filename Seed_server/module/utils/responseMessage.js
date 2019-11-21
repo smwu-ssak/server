@@ -24,5 +24,6 @@ module.exports = {
     DELETE_FAIL: "삭제 실패",
 
     ALREADY_BASKET: "이미 장바구니에 담겨 있습니다.",
+    ALREADY_BOUGHT: "구매할 수 있는 갯수를 초과하였습니다."
 
 };
