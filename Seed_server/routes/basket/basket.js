@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 
   let basketQuery =
     `
-    SELECT p.name, p.quantity, p.image, p.salePrice, b.idBasket
+    SELECT p.name, p.quantity, p.image, p.salePrice, b.idBasket, b.quantity buyNum, b.timePickup, b.packing  
     FROM Product AS p 
     JOIN Basket AS b 
     ON p.idProduct = b.product_id 
