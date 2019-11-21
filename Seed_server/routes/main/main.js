@@ -36,8 +36,8 @@ router.get('/detail/:idProduct', async (req, res) => {
 
     const selectDetail =
         `
-        SELECT p.idProduct, p.name proName, p.quantity, p.comment, p.image, p.originPrice, p.salePrice, p.expDate, u.userProfile,
-        s.name stoName, s.address, s.lat, s.log, u.userProfile 
+        SELECT p.idProduct, p.name proName, p.quantity, p.comment, p.image, p.originPrice, p.salePrice, p.expDate,
+        s.name stoName, s.address, s.lat, s.log, s.tel, u.userProfile 
         FROM Product AS p 
         JOIN Store AS s 
         ON p.store_id = s.idStore 
