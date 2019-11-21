@@ -49,7 +49,7 @@ router.get('/:idProduct', async (req, res) => {
     `
   SELECT product_id
   FROM Basket
-  WHERE product_id = ?;
+  WHERE product_id = ? AND user_id = ?;
   `;
   let basketQuery =
     `
@@ -63,7 +63,7 @@ router.get('/:idProduct', async (req, res) => {
       res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.SAVE_FAIL));
     }
 
-    const selectResult = await pool.queryParam_Parse(dupProduct, [req.params.idProduct]);
+    const selectResult = await pool.queryParam_Parse(dupProduct, [req.params.idProduct, user.idx]);
     if (selectResult[0] == null) {
       const insertResult = await pool.queryParam_Parse(basketQuery, [user.idx, req.params.idProduct]);
       if (!insertResult) {
