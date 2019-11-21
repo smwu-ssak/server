@@ -78,7 +78,6 @@ router.post('/', async (req, res) => {
     }
     catch (err) {
         console.log("Kakao Error => " + err);
-        next(err);
     }
 });
 

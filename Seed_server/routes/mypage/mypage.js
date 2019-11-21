@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   console.log("idx::" + user.idx);
   try {
     if (user == null)
-      res.status(200).send(util.successFalse(404, resMessage.READ_FAIL));
+      res.status(200).send(util.successFalse(400, resMessage.READ_FAIL));
 
     const myProfileQuery = 'SELECT userName, userProfile FROM User WHERE idUser = ?';
     const result = await pool.queryParam_Parse(myProfileQuery, [user.idx]);
