@@ -49,7 +49,7 @@ router.get('/:idProduct', async (req, res) => {
     `
   SELECT product_id
   FROM Basket
-  WHERE product_id = ? AND user_id = ?;
+  WHERE product_id = ? AND user_id = ? AND basketTF = 1;
   `;
   let basketQuery =
     `
