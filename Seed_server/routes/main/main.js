@@ -14,6 +14,8 @@ require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
 
 router.get('/', async (req, res) => {
+    var now = new Date();
+
     const selectMain =
         `
         SELECT p.name proName, p.quantity, p.image, p.originPrice, p.salePrice, p.idProduct, 
@@ -22,10 +24,12 @@ router.get('/', async (req, res) => {
         JOIN Store AS s 
         ON p.store_id = s.idStore 
         JOIN User AS u 
-        ON s.user_id = u.idUser; 
+        ON s.user_id = u.idUser
+        WHERE p.expDate > ? 
+        ORDER BY p.expDate;
         `;
 
-    const mainResult = await pool.queryParam_Parse(selectMain);
+    const mainResult = await pool.queryParam_Parse(selectMain, [now]);
 
     if (!mainResult) {
         res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
