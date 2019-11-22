@@ -7,6 +7,7 @@ const util = require('../../module/utils/utils');
 
 const pool = require('../../module/pool');
 const jwt = require('../../module/jwt');
+const upload = require('../../config/multer');
 
 router.get('/', async (req, res) => {
 
@@ -72,5 +73,34 @@ router.get('/buy_list', async (req, res) => {
   }
 
 });
+
+router.patch('/', upload.single('profile'), async (req, res) => {
+  const user = jwt.verify(req.headers.token);
+  console.log("userIdx::"+user.idx);
+
+  if (user == null) {
+      res.status(200).send(util.successFalse(statusCode.INVALID_TOKEN, resMessage.INVALID_TOKEN));
+  } else {
+      const updateUserQuery = 
+      `
+      UPDATE User 
+      SET userName = ?, userProfile = ?
+      WHERE idUser = ?;
+      `;
+      const userName = req.body.name;
+      console.log(":::"+userName);
+      const userProfile = req.file.location;
+      if(userName == null)
+        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.NO_DATA));
+      
+      const userResult = await pool.queryParam_Parse(updateUserQuery, [userName, userProfile, user.idx]);
+
+      if(userResult)
+          res.status(200).send(util.successTrue(statusCode.OK, resMessage.UPDATE_SUCCESS));
+      else
+          res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));
+  }
+});
+
 
 module.exports = router;

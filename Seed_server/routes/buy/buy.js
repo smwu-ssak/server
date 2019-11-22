@@ -43,6 +43,7 @@ router.get('/', async (req, res) => {
         const quantity = selectResult[key].quantity;
         const sum = price * quantity + packing;
 
+        result.
         result.sum = sum;
         result.name = selectResult[key].name;
         result.image = selectResult[key].image;
