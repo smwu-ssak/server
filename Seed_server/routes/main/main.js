@@ -7,7 +7,11 @@ const utils = require('../../module/utils/utils');
 const upload = require('../../config/multer');
 
 const pool = require('../../module/pool');
-const jwt = require('../../module/jwt');
+const time = require('../../module/timeFormat');
+
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
 
 router.get('/', async (req, res) => {
     const selectMain =
@@ -36,7 +40,7 @@ router.get('/detail/:idProduct', async (req, res) => {
 
     const selectDetail =
         `
-        SELECT p.idProduct, p.name proName, p.quantity, p.comment, p.image, p.originPrice, p.salePrice, p.expDate,
+        SELECT p.idProduct, p.name proName, p.quantity, p.comment, p.image, p.originPrice, p.salePrice, p.expDate date,
         s.name stoName, s.address, s.lat, s.log, s.tel, u.userProfile 
         FROM Product AS p 
         JOIN Store AS s 
@@ -47,11 +51,16 @@ router.get('/detail/:idProduct', async (req, res) => {
         `;
 
     const detailResult = await pool.queryParam_Parse(selectDetail, [idProduct]);
+    const lastTime = await time.dateDiff(detailResult[0].date);
+    console.log("lastTime:::"+lastTime);
+    var result = new Object();
+    result = detailResult[0];
+    result.expDate = lastTime;
 
     if (!detailResult) {
         res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
     } else {
-        res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, detailResult[0]));
+        res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, result));
     }
 });
 
