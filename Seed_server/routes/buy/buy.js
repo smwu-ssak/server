@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 
   let buyQuery =
     `
-    SELECT p.name, p.image, p.salePrice, b.quantity, b.timePickup, b.packing, b.idBasket 
+    SELECT p.name, p.image, p.salePrice, b.quantity, b.timePickup, b.packing 
     FROM Product AS p 
     JOIN Basket AS b 
     ON p.idProduct = b.product_id 
@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
       console.log("buy::" + selectResult);
 
       var resultArray = new Array();
-
+    
       for (var key in selectResult) {
         var result = new Object();
         const price = selectResult[key].salePrice;
@@ -43,8 +43,8 @@ router.get('/', async (req, res) => {
         const quantity = selectResult[key].quantity;
         const sum = price * quantity + packing;
 
-        result.
-        result.sum = sum;
+        result=selectResult[key]
+        result.totalPrice = sum;
         result.name = selectResult[key].name;
         result.image = selectResult[key].image;
         resultArray.push(result);
