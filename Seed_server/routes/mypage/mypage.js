@@ -9,6 +9,10 @@ const pool = require('../../module/pool');
 const jwt = require('../../module/jwt');
 const upload = require('../../config/multer');
 
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
+
 router.get('/', async (req, res) => {
 
   const user = jwt.verify(req.headers.token);
@@ -28,44 +32,74 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/buy_list', async (req, res) => {
+
   const user = jwt.verify(req.headers.token);
   console.log("idx::" + user.idx);
 
   let buyListQuery =
     `
-    SELECT p.name, p.image, p.salePrice, b.quantity, b.packing, b.idBasket 
+    SELECT p.name, p.salePrice, b.quantity, b.packing, SUBSTR(b.timePickup, 1,10) timePickup 
     FROM Product AS p 
     JOIN Basket AS b 
     ON p.idProduct = b.product_id 
-    WHERE b.user_id = ? AND b.buyTF = 0;
+    WHERE b.user_id = ? AND SUBSTR(b.timePickup, 1,10) = ? AND b.buyTF = 0 AND basketTF = 0;
     `;
+
+  const dateQuery = 
+  `
+  SELECT DISTINCT SUBSTR(timePickup, 1,10) date
+  FROM Basket 
+  WHERE user_id = ? AND buyTF = 0 AND basketTF = 0
+  ORDER BY timePickup DESC;
+  `;
 
   try {
     if (user == null)
       res.status(200).send(util.successFalse(statusCode.INVALID_TOKEN, resMessage.INVALID_TOKEN));
 
-    const buyListResult = await pool.queryParam_Parse(buyListQuery, [user.idx]);
-    if (!buyListResult) {
-      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.READ_FAIL));
+    const dateResult = await pool.queryParam_Parse(dateQuery, [user.idx]);
+    console.log("dateQUERY::"+JSON.stringify(dateResult));
+    
+    var resultArray = new Array();
+
+    for (var key in dateResult) {
+      const time = new Object();
+      const date = dateResult[key].date;
+      time.time = date;
+      console.log("time::"+JSON.stringify(time));
+
+      console.log("date::"+key+"??"+date);
+      const buyListResult = await pool.queryParam_Parse(buyListQuery, [user.idx, date]);
+
+      console.log("buyListResult::"+JSON.stringify(buyListResult));
+
+      var array = new Array();
+
+      for (var i in buyListResult) {
+        var result = new Object();
+
+        const price = buyListResult[i].salePrice;
+        const packing = buyListResult[i].packing;
+        const quantity = buyListResult[i].quantity;
+        const sum = price * quantity + packing;
+        result.sum = sum;
+        result.time = buyListResult[i].timePickup;
+        result.name = buyListResult[i].name;
+
+        
+        array.push(result);
+        //console.log("sum::"+sum);
+      }
+      time.data = array;
+      console.log("arrTime+"+JSON.stringify(time));
+
+      resultArray.push(time);
+    }
+
+    if (!result) {
+      //res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.READ_FAIL));
     }
     else {
-      var resultArray = new Array();
-
-      for (var key in buyListResult) {
-        var result = new Object();
-        const price = buyListResult[key].salePrice;
-        const packing = buyListResult[key].packing;
-        const quantity = buyListResult[key].quantity;
-        const sum = price * quantity + packing;
-
-        result.sum = sum;
-        result.name = buyListResult[key].name;
-        result.image = buyListResult[key].image;
-        result.quantity = buyListResult[key].quantity;
-        
-        resultArray.push(result);
-      }
-
       res.status(200).send(util.successTrue(statusCode.OK, resMessage.READ_SUCCESS, resultArray));
     }
   } catch (error) {
