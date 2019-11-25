@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
         ON p.store_id = s.idStore 
         JOIN User AS u 
         ON s.user_id = u.idUser
-        WHERE p.expDate > ? 
+        WHERE p.expDate > ? AND p.quantity > 0 
         ORDER BY p.expDate;
         `;
 
