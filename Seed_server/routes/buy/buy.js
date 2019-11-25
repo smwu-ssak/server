@@ -113,7 +113,7 @@ router.post('/', async (req, res) => {
           res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));
         var quantityResult = await pool.queryParam_Parse(selectProduct, [product_id]);
         var newQuantity = quantityResult[0].quantity - quantity;
-        if(newQuantity>0){
+        if(newQuantity>=0){
           await pool.queryParam_Parse(updateProduct, [newQuantity, product_id]);
         }else{
           res.status(200).send(util.successFalse(statusCode.SERVICE_UNAVAILABLE, resMessage.ALREADY_BOUGHT));
