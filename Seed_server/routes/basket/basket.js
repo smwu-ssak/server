@@ -12,6 +12,7 @@ const jwt = require('../../module/jwt');
 router.get('/', async (req, res) => {
   const user = jwt.verify(req.headers.token);
   console.log("idx::" + user.idx);
+  var now = new Date();
 
   let basketQuery =
     `
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
     FROM Product AS p 
     JOIN Basket AS b 
     ON p.idProduct = b.product_id 
-    WHERE b.user_id = ? AND b.basketTF = 1;
+    WHERE b.user_id = ? AND b.basketTF = 1 AND p.expDate > ?;
     `;
 
   try {
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
       res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
     }
 
-    const selectResult = await pool.queryParam_Parse(basketQuery, [user.idx]);
+    const selectResult = await pool.queryParam_Parse(basketQuery, [user.idx, now]);
     if (!selectResult) {
       res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.READ_FAIL));
     }
