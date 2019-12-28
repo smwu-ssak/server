@@ -16,7 +16,7 @@ module.exports = {
     sign: (User) => {
         const payload = {
             idx: User.idUser,
-            name: User.userName
+            userWho: User.userWho
         };
 
         const result = {
@@ -48,7 +48,7 @@ module.exports = {
     refresh: (User) => {
         const payload = {
             idx: User.idUser,
-            name: User.userName
+            uerWho: User.userWho
         };
 
         return jwt.sign(payload, secretOrPrivateKey, options);
