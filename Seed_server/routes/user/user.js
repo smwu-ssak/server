@@ -18,14 +18,15 @@ router.use(bodyParser.urlencoded({ extended: false }));
 router.post('/', async (req, res) => {
 
     // kakao access token
-    let accessToken = req.body.token;
+    var accessToken = req.body.token;
     var userWho = req.body.userWho;
 
     console.log("user who:::"+userWho);
 
-    if (!accessToken) {
-        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
+    if ( userWho== undefined || accessToken== undefined) {
+        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
     }
+    
 
     let option = {
         method: 'GET',
