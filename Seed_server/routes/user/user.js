@@ -19,6 +19,9 @@ router.post('/', async (req, res) => {
 
     // kakao access token
     let accessToken = req.body.token;
+    var userWho = req.body.userWho;
+
+    console.log("user who:::"+userWho);
 
     if (!accessToken) {
         res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
@@ -33,7 +36,7 @@ router.post('/', async (req, res) => {
         }
     }
     let insertSignupQuery =
-        'INSERT INTO User (userName, userId, userProfile, userWho) VALUES (?, ?, ?, 0)';
+        'INSERT INTO User (userName, userId, userProfile, userWho) VALUES (?, ?, ?, ?)';
 
     try {
         let kakaoResult = await request(option);
@@ -50,7 +53,9 @@ router.post('/', async (req, res) => {
             const selectResult = await pool.queryParam_Parse(selectIdQuery, [id]);
 
             if (selectResult[0] == null) {
-                const insertSignupResult = await pool.queryParam_Parse(insertSignupQuery, [nickname, id, img_url]);
+                console.log("user who222:::"+userWho);
+
+                const insertSignupResult = await pool.queryParam_Parse(insertSignupQuery, [nickname, id, img_url, userWho]);
 
                 if (!insertSignupResult) {
                     res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.CREATED_USER_FAIL));
@@ -63,7 +68,7 @@ router.post('/', async (req, res) => {
                         success: true,
                         message: "로그인 성공",
                         data : {
-                            token : newToken.token
+                            token : newToken.token,
                         }
                     });
                 }
