@@ -23,8 +23,11 @@ router.post('/', async (req, res) => {
 
     console.log("user who:::"+userWho);
 
-    if ( userWho== undefined || accessToken== undefined) {
+    if ( userWho== undefined || accessToken== undefined ) {
         res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+    }
+    if ( accessToken!=0||accessToken!=1 ) {
+        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.OUT_OF_VALUE));
     }
     
 
