@@ -174,4 +174,32 @@ router.post('/now', async (req, res) => {
   }
 });
 
+//장바구니 삭제
+router.delete('/:idProduct', async (req, res) => {
+  const user = jwt.verify(req.headers.token);
+  console.log("user:::" + JSON.stringify(user.idx));
+
+  let deleteProduct =
+    `
+    DELETE FROM Basket
+    WHERE product_id = ? AND user_id = ? AND buyTF = 1;
+  `;
+
+  try {
+    if (user == undefined) {
+      res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+    }
+
+    const deleteResult = await pool.queryParam_Parse(deleteProduct, [req.params.idProduct, user.idx]);
+    if (!deleteResult.affectedRows) {
+      res.status(200).send(util.successFalse(statusCode.OK, resMessage.DELETE_FAIL));
+    }
+    else {
+      res.status(200).send(util.successTrue(statusCode.OK, resMessage.DELETE_SUCCESS));
+    }
+  } catch (err) {
+    console.log("Delete Buy Error => " + err);
+  }
+});
+
 module.exports = router;
