@@ -90,5 +90,24 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    const user = jwt.verify(req.headers.token);
+
+    var selectUser = 
+    `
+    SELECT *
+    FROM Store
+    WHERE user_id = ?;
+    `;
+
+    var selectResult = await pool.queryParam_Parse(selectUser, user.idx);
+
+    if(!selectResult[0]){
+        res.status(200).send(util.successTrue(statusCode.OK, resMessage.NO_USER));
+    }else{
+        res.status(200).send(util.successTrue(statusCode.DUPLICATE_VALUES, resMessage.ALREADY_USER));
+    }
+
+})
 
 module.exports = router;
