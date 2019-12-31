@@ -5,7 +5,7 @@ module.exports = {
 
     AVAILABLE_NICKNAME: "사용 가능한 아이디 입니다.",
     DUPLICATION_NICKNAME: "중복된 아이디 입니다",
-    NO_USER: "회원이 아닙니다",
+    NO_USER: "스토어를 등록하지 않은 회원이 아닙니다",
     ALREADY_USER: "이미 회원입니다",
     CREATED_USER_FAIL: "회원 등록 실패",
     CREATED_USER_SUCCESS: "회원 등록 성공",
