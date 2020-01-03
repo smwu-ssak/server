@@ -43,7 +43,8 @@ router.post('/', async (req, res) => {
             for (var key in req.body.time) {
                 if (req.body.time.hasOwnProperty(key)) {
                     //do something with e.g. req.body[key]
-                    console.log("body???:::" + JSON.stringify(req.body.time));
+                    console.log("body???:::" + JSON.stringify(req.body));
+                    console.log("day???:::" + JSON.stringify(req.body.time[key].day));
                     const day = req.body.time[key].day;
                     const startTime = req.body.time[key].startTime;
                     const endTime = req.body.time[key].endTime;
