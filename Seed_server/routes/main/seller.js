@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
     console.log("user::" + user.idx);
 
     if (user.idx == undefined) {
-        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
+        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.NO_DATA));
     }
     
 

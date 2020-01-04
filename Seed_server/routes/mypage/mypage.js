@@ -114,7 +114,7 @@ router.patch('/', upload.single('profile'), async (req, res) => {
   console.log("userIdx::"+user.idx);
 
 
-  if (user == null) {
+  if (user.idx == undefined) {
       res.status(200).send(util.successFalse(statusCode.INVALID_TOKEN, resMessage.INVALID_TOKEN));
   } else {
       const updateUserQuery = 
@@ -124,14 +124,16 @@ router.patch('/', upload.single('profile'), async (req, res) => {
       WHERE idUser = ?;
       `;
       const userName = req.body.name;
-      console.log(":::"+userName);
+      console.log("name:::"+userName);
       const userProfile = req.file.location;
-      if(userName == null)
+      console.log("profile:::"+req.file.location);
+
+      if(userName == undefined)
         res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.NO_DATA));
       
       const userResult = await pool.queryParam_Parse(updateUserQuery, [userName, userProfile, user.idx]);
 
-      if(userResult)
+      if(userResult.affectedRows)
           res.status(200).send(util.successTrue(statusCode.OK, resMessage.UPDATE_SUCCESS));
       else
           res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));

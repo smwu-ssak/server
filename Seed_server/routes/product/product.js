@@ -36,7 +36,10 @@ router.post('/', upload.single('image'), async (req, res) => {
             const idStoreResult = await connection.query(idStoreQuery, [user.idx]);
             console.log("idStore::"+idStoreResult[0].idStore);
             const store_id = idStoreResult[0].idStore;
-            await connection.query(productQuery, [name, quantity, originPrice, salePrice, expDate, image, store_id, comment]);
+            const insertResult = await connection.query(productQuery, [name, quantity, originPrice, salePrice, expDate, image, store_id, comment]);
+            if (!insertResult.affectedRows) {
+                console.log(err);
+            }
         });
 
         if (!transaction) {
