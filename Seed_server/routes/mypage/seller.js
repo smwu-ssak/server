@@ -12,6 +12,49 @@ var moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
 
+router.get('/', async (req, res) => {
+    const user = jwt.verify(req.headers.token);
+    console.log("idx::" + user.idx);
+    try {
+        if (user.idx == undefined)
+            res.status(200).send(util.successFalse(statusCode.INVALID_TOKEN, resMessage.INVALID_TOKEN));
+
+        const storeQuery = 'SELECT address, tel FROM Store WHERE user_id = ?';
+        const storeTimeQuery = 
+        `
+        SELECT day, startTime, endTime
+        FROM StoreTime 
+        WHERE idStore = (
+            SELECT idStore
+            FROM Store
+            WHERE user_id = ?
+        )
+        `;
+
+        const storeResult = await pool.queryParam_Parse(storeQuery, [user.idx]);
+        if(storeResult[0].address == undefined)
+            res.status(200).send(util.successFalse(200, resMessage.READ_FAIL));
+        
+        console.log("store::" + storeResult);
+
+        const storeTimeResult = await pool.queryParam_Parse(storeTimeQuery, [user.idx]);
+        if(storeTimeResult[0].day == undefined)
+            res.status(200).send(util.successFalse(200, resMessage.READ_FAIL));
+        
+        console.log("storeTimeResult::" + storeTimeResult);
+
+        var resData = {
+            "address":storeResult[0].address,
+            "tel":storeResult[0].tel,
+            "time": storeTimeResult
+        }
+        //응답 보내줄때 쿼리 문을 보내주는 것이 아니라 그 쿼리문의 결과를 보내줘야 해서 result값을 보내야 합니다잉 
+        res.status(200).send(util.successTrue(200, resMessage.READ_SUCCESS, resData));
+    } catch (error) {
+        res.status(200).send(util.successFalse(200, resMessage.READ_FAIL, error));
+    }
+});
+
 router.patch('/address', async (req, res) => {
     const user = jwt.verify(req.headers.token);
 
@@ -24,14 +67,14 @@ router.patch('/address', async (req, res) => {
     }
 
     let updateAddressQuery =
-    `
+        `
     UPDATE Store 
     SET address = ?, lat = ?, log = ?
     WHERE user_id = ?;
     `;
 
     try {
-        
+
         var updateResult = await pool.queryParam_Parse(updateAddressQuery, [address, lat, log, user.idx]);
 
         if (!updateResult.affectedRows) {
@@ -54,14 +97,14 @@ router.patch('/tel', async (req, res) => {
     const tel = req.body.tel;
 
     let updateTelQuery =
-    `
+        `
     UPDATE Store 
     SET tel = ?
     WHERE user_id = ?;
     `;
 
     try {
-        
+
         var updateResult = await pool.queryParam_Parse(updateTelQuery, [tel, user.idx]);
 
         if (!updateResult.affectedRows) {
@@ -84,14 +127,14 @@ router.patch('/time', async (req, res) => {
     }
 
     let updateTelQuery =
-    `
+        `
     UPDATE StoreTime 
     SET startTime = ?, endTime = ?
     WHERE idStore = ? AND day = ?
     `;
 
     let selectStoreIdQuery =
-    `
+        `
     SELECT idStore
     FROM Store
     WHERE user_id = ?;
@@ -115,16 +158,16 @@ router.patch('/time', async (req, res) => {
 
                 var timeResult = await pool.queryParam_Parse(updateTelQuery, [startTime, endTime, idStoreResult[0].idStore, day]);
                 rows += timeResult.affectedRows;
-                console.log("type::"+ rows);
+                console.log("type::" + rows);
 
             }
         }
-        if(rows==req.body.length){
+        if (rows == req.body.length) {
             res.status(200).send(util.successTrue(statusCode.OK, resMessage.UPDATE_SUCCESS));
-        }else{
+        } else {
             res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));
         }
-        
+
     } catch (err) {
         console.log("UPDATE TIME Error => " + err);
     }
