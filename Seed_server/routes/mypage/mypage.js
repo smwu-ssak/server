@@ -9,6 +9,7 @@ const pool = require('../../module/pool');
 const jwt = require('../../module/jwt');
 const upload = require('../../config/multer');
 
+
 var moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
@@ -111,6 +112,7 @@ router.get('/buy_list', async (req, res) => {
 router.patch('/', upload.single('profile'), async (req, res) => {
   const user = jwt.verify(req.headers.token);
   console.log("userIdx::"+user.idx);
+
 
   if (user == null) {
       res.status(200).send(util.successFalse(statusCode.INVALID_TOKEN, resMessage.INVALID_TOKEN));
