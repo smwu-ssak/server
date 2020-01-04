@@ -36,8 +36,13 @@ router.post('/', async (req, res) => {
     try {
         const insertTransaction = await pool.Transaction(async (connection) => {
             const insertStoreResult = await connection.query(insertStoreQuery, [name, address, user.idx, lat, log, tel]);
+            if (!insertStoreResult.affectedRows) {
+                console.log(err);
+            }
             const idStoreResult = await connection.query(selectStoreQuery, [tel]);
-
+            if (!idStoreResult.affectedRows) {
+                console.log(err);
+            }
             console.log("idStore:::" + JSON.stringify(idStoreResult));
 
             for (var key in req.body.time) {
@@ -50,6 +55,9 @@ router.post('/', async (req, res) => {
                     const endTime = req.body.time[key].endTime;
 
                     var timeResult = await connection.query(insertTimeQuery, [idStoreResult[0].idStore, day, startTime, endTime]);
+                    if (!timeResult.affectedRows) {
+                        console.log(err);
+                    }
                 }
             }
         });
