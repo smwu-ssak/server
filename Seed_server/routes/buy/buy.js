@@ -65,17 +65,17 @@ router.post('/', async (req, res) => {
   console.log("body:::" + JSON.stringify(req.body));
 
   let selectBuy =
-    `
+  `
   SELECT idBasket, product_id, quantity 
   FROM Basket
   WHERE user_id = ? AND buyTF = 1;
   `;
   let buyQuery =
-    `
-    UPDATE Basket 
-    SET basketTF = 0, buyTF = 0  
-    WHERE idBasket = ?;
-    `;
+  `
+  UPDATE Basket 
+  SET basketTF = 0, buyTF = 0  
+  WHERE idBasket = ?;
+  `;
 
   let updateProduct = 
   `
@@ -108,13 +108,16 @@ router.post('/', async (req, res) => {
         const quantity = userIdResult[key].quantity;
         
         console.log("userId::" + JSON.stringify(userIdResult[key].idBasket));
-        var updateResult = await pool.queryParam_Parse(buyQuery, [idBasket]);
-        if(updateResult==undefined)
+        var updateResult = await connection.query(buyQuery, [idBasket]);
+        if(!updateResult.affectedRows)
           res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));
-        var quantityResult = await pool.queryParam_Parse(selectProduct, [product_id]);
+        var quantityResult = await connection.query(selectProduct, [product_id]);
         var newQuantity = quantityResult[0].quantity - quantity;
         if(newQuantity>=0){
-          await pool.queryParam_Parse(updateProduct, [newQuantity, product_id]);
+          var updateResult = await connection.query(updateProduct, [newQuantity, product_id]);
+          if(!updateResult.affectedRows){
+            console.log(err);
+          }
         }else{
           res.status(200).send(util.successFalse(statusCode.SERVICE_UNAVAILABLE, resMessage.ALREADY_BOUGHT));
         }
@@ -129,7 +132,7 @@ router.post('/', async (req, res) => {
     }
   } catch (err) {
     console.log("Update Buy Error => " + err);
-    res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.UPDATE_FAIL, err));
+    res.status(200).send(util.successFalse(statusCode.DB_ERROR, resMessage.UPDATE_FAIL, err));
   }
 });
 
@@ -174,7 +177,7 @@ router.post('/now', async (req, res) => {
   }
 });
 
-//장바구니 삭제
+//구출하기 삭제
 router.delete('/:idProduct', async (req, res) => {
   const user = jwt.verify(req.headers.token);
   console.log("user:::" + JSON.stringify(user.idx));
