@@ -13,6 +13,7 @@ router.post('/', async (req, res) => {
     const user = jwt.verify(req.headers.token);
 
     const name = req.body.name;
+    const profile = req.body.profile;
     const address = req.body.address;
     const lat = req.body.lat; //위도
     const log = req.body.log; //경도
@@ -25,23 +26,23 @@ router.post('/', async (req, res) => {
     }
 
     let insertStoreQuery =
-        `INSERT INTO Store (name, address, user_id, lat, log, tel) VALUES (?, ?, ?, ?, ?, ?);`;
+        `INSERT INTO Store (name, profile, address, user_id, lat, log, tel) VALUES (?, ?, ?, ?, ?, ?, ?);`;
 
     let insertTimeQuery =
-        `INSERT INTO StoreTime (idStore, day, startTime, endTime) VALUES (?, ?, ?, ?);`;
+        `INSERT INTO StoreTime (store_id, day, startTime, endTime) VALUES (?, ?, ?, ?);`;
 
     let selectStoreQuery =
         `SELECT idStore FROM Store WHERE tel = ?;`;
 
     try {
         const insertTransaction = await pool.Transaction(async (connection) => {
-            const insertStoreResult = await connection.query(insertStoreQuery, [name, address, user.idx, lat, log, tel]);
+            const insertStoreResult = await connection.query(insertStoreQuery, [name, profile, address, user.idx, lat, log, tel]);
             if (!insertStoreResult.affectedRows) {
-                console.log(err);
+                //console.log(err);
             }
             const idStoreResult = await connection.query(selectStoreQuery, [tel]);
             if (!idStoreResult.affectedRows) {
-                console.log(err);
+                //console.log(err);
             }
             console.log("idStore:::" + JSON.stringify(idStoreResult));
 
