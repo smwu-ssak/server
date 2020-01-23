@@ -15,14 +15,17 @@ require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
 
 router.get('/', async (req, res) => {
-
   const user = jwt.verify(req.headers.token);
-  console.log("idx::" + user.idx);
+  console.log("idx::" + user.userWho);
   try {
     if (user == null)
       res.status(200).send(util.successFalse(statusCode.INVALID_TOKEN, resMessage.INVALID_TOKEN));
 
-    const myProfileQuery = 'SELECT userName, userProfile FROM User WHERE idUser = ?';
+    if(!user.userWho){
+      var myProfileQuery = 'SELECT name, profile FROM Customer WHERE user_id = ?';
+    }else{
+      var myProfileQuery = 'SELECT name, profile FROM Store WHERE user_id = ?';
+    }
     const result = await pool.queryParam_Parse(myProfileQuery, [user.idx]);
     //응답 보내줄때 쿼리 문을 보내주는 것이 아니라 그 쿼리문의 결과를 보내줘야 해서 result값을 보내야 합니다잉 
     res.status(200).send(util.successTrue(200, resMessage.READ_SUCCESS, result[0]));

@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
         `
         SELECT day, startTime, endTime
         FROM StoreTime 
-        WHERE idStore = (
+        WHERE store_id = (
             SELECT idStore
             FROM Store
             WHERE user_id = ?
@@ -130,7 +130,7 @@ router.patch('/time', async (req, res) => {
         `
     UPDATE StoreTime 
     SET startTime = ?, endTime = ?
-    WHERE idStore = ? AND day = ?
+    WHERE store_id = ? AND day = ?
     `;
 
     let selectStoreIdQuery =
