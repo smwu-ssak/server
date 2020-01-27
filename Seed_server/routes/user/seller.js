@@ -43,12 +43,12 @@ router.get('/signin', async (req, res) => {
 
 router.post('/signup', async (req, res) => {
     const selectIdQuery = 'SELECT userId FROM User WHERE userId = ?';
-    const selectIdResult = await pool.queryParam_Parse(selectIdQuery, [req.body.id]);
+    const selectIdResult = await pool.queryParam_Parse(selectIdQuery, [req.body.userId]);
 
     const userId = req.body.userId;
     const password = req.body.password;
 
-    if (selectIdResult[0] == null) {
+    if (!selectIdResult[0]) {
         const buf = await crypto.randomBytes(64);
         const salt = buf.toString('base64');
         const hashedPw = await crypto.pbkdf2(password.toString(), salt, 1000, 32, 'SHA512');
@@ -90,4 +90,18 @@ router.post('/signup', async (req, res) => {
         res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.ALREADY_USER));
     }
 });
+
+router.get('/checkId', async (req, res) => {
+    const selectIdQuery = 'SELECT userId FROM User WHERE userId = ?';
+    const selectIdResult = await pool.queryParam_Parse(selectIdQuery, [req.body.userId]);
+
+        console.log(JSON.stringify(selectIdResult));
+        
+    if (!selectIdResult[0]) {
+        res.status(200).send(util.successTrue(statusCode.OK, resMessage.AVAILABLE_NICKNAME));
+    } else {
+        res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.DUPLICATION_NICKNAME));
+    }
+});
+
 module.exports = router;

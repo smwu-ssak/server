@@ -8,6 +8,10 @@ const util = require('../../module/utils/utils');
 const pool = require('../../module/pool');
 const jwt = require('../../module/jwt');
 
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
+
 //장바구니 조회
 router.get('/', async (req, res) => {
   const user = jwt.verify(req.headers.token);

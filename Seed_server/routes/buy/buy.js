@@ -8,6 +8,10 @@ const util = require('../../module/utils/utils');
 const pool = require('../../module/pool');
 const jwt = require('../../module/jwt');
 
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
+
 //구출하기 조회
 router.get('/', async (req, res) => {
   const user = jwt.verify(req.headers.token);
@@ -153,11 +157,13 @@ router.post('/now', async (req, res) => {
       res.status(200).send(util.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
     }
 
+    var now = moment();
+
     for (var key in req.body) {
       if (req.body.hasOwnProperty(key)) {
         //do something with e.g. req.body[key]
         console.log("body???:::" + JSON.stringify(req.body[key].quantity));
-        const timePickup = req.body[key].timePickup;
+        const timePickup = moment().format('YYYY-MM-DD HH:mm:ss');
         const packing = req.body[key].packing;
         const quantity = req.body[key].quantity;
         const idBasket = req.body[key].idBasket;
