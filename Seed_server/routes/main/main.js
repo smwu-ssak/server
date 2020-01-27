@@ -16,6 +16,19 @@ moment.tz.setDefault("Asia/Seoul");
 router.get('/', async (req, res) => {
     var now = new Date();
 
+    //1k이내 스토어 검색
+    const selectStore = 
+    `
+    SELECT *,
+	(6371*acos(cos(radians(37.4685225))*cos(radians(lat))*cos(radians(log)
+	-radians(126.8943311))+sin(radians(37.4685225))*sin(radians(P_LAT))))
+	AS distance
+    FROM Store
+    HAVING distance <= 1
+    ORDER BY distance 
+    LIMIT 0,30
+    `
+
     const selectMain =
         `
         SELECT p.name proName, p.quantity, p.image, p.originPrice, p.salePrice, p.idProduct, 
@@ -29,7 +42,7 @@ router.get('/', async (req, res) => {
         ORDER BY p.expDate;
         `;
 
-    const mainResult = await pool.queryParam_Parse(selectMain, [now]);
+    const mainResult = await pool.queryParam_Parse(selectMain, [moment().format('YYYY-MM-DD HH:mm:ss')]);
 
     if (!mainResult) {
         res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
@@ -40,7 +53,7 @@ router.get('/', async (req, res) => {
 
 router.get('/detail/:idProduct', async (req, res) => {
     const idProduct = req.params.idProduct;
-    console.log("idProduct:: "+idProduct);
+    console.log("idProduct:: " + idProduct);
 
     const selectDetail =
         `
@@ -56,7 +69,7 @@ router.get('/detail/:idProduct', async (req, res) => {
 
     const detailResult = await pool.queryParam_Parse(selectDetail, [idProduct]);
     const lastTime = await time.dateDiff(detailResult[0].date);
-    console.log("lastTime:::"+lastTime);
+    console.log("lastTime:::" + lastTime);
     var result = new Object();
     result = detailResult[0];
     result.expDate = lastTime;
