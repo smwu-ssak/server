@@ -14,38 +14,41 @@ require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
 
 router.get('/', async (req, res) => {
-    var now = new Date();
+    var latitude = req.body.latitude;
+    var longitude = req.body.longitude;
 
     //1k이내 스토어 검색
+    //?순서: lat log lat date
     const selectStore = 
     `
-    SELECT *,
-	(6371*acos(cos(radians(37.4685225))*cos(radians(lat))*cos(radians(log)
-	-radians(126.8943311))+sin(radians(37.4685225))*sin(radians(P_LAT))))
-	AS distance
-    FROM Store
+    SELECT p.name AS proName, p.quantity, p.image, p.originPrice, p.salePrice, p.idProduct, 
+    s.name AS storName,
+    (6371*acos(cos(radians(?))*cos(radians(s.lat))*cos(radians(s.log)
+    -radians(?))+sin(radians(?))*sin(radians(s.lat))))
+    AS distance
+    FROM Store AS s
+    JOIN Product AS p 
+    ON p.store_id = s.idStore 
+    WHERE p.expDate >= ? AND p.quantity > 0 
     HAVING distance <= 1
-    ORDER BY distance 
-    LIMIT 0,30
+    ORDER BY p.expDate;
     `
 
-    const selectMain =
-        `
-        SELECT p.name proName, p.quantity, p.image, p.originPrice, p.salePrice, p.idProduct, 
-        s.name storName  
-        FROM Product AS p 
-        JOIN Store AS s 
-        ON p.store_id = s.idStore 
-        JOIN User AS u 
-        ON s.user_id = u.idUser
-        WHERE p.expDate > ? AND p.quantity > 0 
-        ORDER BY p.expDate;
-        `;
+    // const selectMain =
+    //     `
+    //     SELECT p.name proName, p.quantity, p.image, p.originPrice, p.salePrice, p.idProduct, 
+    //     s.name storName  
+    //     FROM Product AS p 
+    //     JOIN Store AS s 
+    //     ON p.store_id = s.idStore 
+    //     WHERE p.expDate > ? AND p.quantity > 0 
+    //     ORDER BY p.expDate;
+    //     `;
 
-    const mainResult = await pool.queryParam_Parse(selectMain, [moment().format('YYYY-MM-DD HH:mm:ss')]);
+    const mainResult = await pool.queryParam_Parse(selectStore, [latitude, longitude, latitude, moment().format('YYYY-MM-DD HH:mm:ss')]);
 
-    if (!mainResult) {
-        res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
+    if (!mainResult[0]) {
+        res.status(200).send(utils.successFalse(statusCode.NO_CONTENT, resMessage.NO_DATA));
     } else {
         res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, mainResult));
     }

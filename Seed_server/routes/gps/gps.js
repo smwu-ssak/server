@@ -45,5 +45,35 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    const user = jwt.verify(req.headers.token);
+    console.log("body:::" + JSON.stringify(req.body));
+    console.log("token:::" + JSON.stringify(user.idx));
+
+    if (!req.body || !req.headers.token) {
+        res.status(200).send(utils.successFalse(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+    }
+
+    if (!user.idx) {
+        res.status(200).send(utils.successFalse(statusCode.BAD_REQUEST, resMessage.INVALID_TOKEN));
+    }
+
+    const selectGPS =
+        `
+        SELECT latitude, longitude
+        FROM Location
+        WHERE user_id = ?
+        ORDER BY idLocation DESC;
+        `;
+
+    const gpsResult = await pool.queryParam_Parse(selectGPS, [user.idx]);
+
+    if (!gpsResult[0]) {
+        res.status(200).send(utils.successFalse(statusCode.DB_ERROR, resMessage.READ_FAIL));
+    } else {
+        res.status(200).send(utils.successTrue(statusCode.OK, resMessage.READ_SUCCESS, gpsResult));
+    }
+});
+
 
 module.exports = router;
